@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -45,6 +47,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column]
     private ?\DateTimeImmutable $updatedAt = null;
+
+    /**
+     * @var Collection<int, Advice>
+     */
+    #[ORM\OneToMany(targetEntity: Advice::class, mappedBy: 'author')]
+    private Collection $advice;
+
+    public function __construct()
+    {
+        $this->advice = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -183,6 +196,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Advice>
+     */
+    public function getAdvice(): Collection
+    {
+        return $this->advice;
+    }
+
+    public function addAdvice(Advice $advice): static
+    {
+        if (!$this->advice->contains($advice)) {
+            $this->advice->add($advice);
+            $advice->setAuthor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAdvice(Advice $advice): static
+    {
+        if ($this->advice->removeElement($advice)) {
+            // set the owning side to null (unless already changed)
+            if ($advice->getAuthor() === $this) {
+                $advice->setAuthor(null);
+            }
+        }
 
         return $this;
     }
