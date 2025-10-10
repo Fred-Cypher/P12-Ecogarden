@@ -6,6 +6,7 @@ use App\Enum\Month;
 use App\Repository\AdviceRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: AdviceRepository::class)]
 class Advice
@@ -13,25 +14,32 @@ class Advice
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['advice:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 100, nullable: true)]
+    #[Groups(['advice:read'])]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(['advice:read'])]
     private ?string $content = null;
 
     #[ORM\Column(enumType: Month::class)]
+    #[Groups(['advice:read'])]
     private ?Month $month = null;
 
     #[ORM\ManyToOne(inversedBy: 'advice')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['advice:read'])]
     private ?User $author = null;
 
     #[ORM\Column]
+    #[Groups(['advice:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
+    #[Groups(['advice:read'])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     public function getId(): ?int
@@ -109,5 +117,11 @@ class Advice
         $this->updatedAt = $updatedAt;
 
         return $this;
+    }
+
+    #[Groups(['advice:read'])]
+    public function getMonthLabel(): ?string
+    {
+        return $this->month?->label();
     }
 }
