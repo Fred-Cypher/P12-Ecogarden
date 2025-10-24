@@ -9,7 +9,7 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 final class AuthController extends AbstractController
 {
-    #[Route('/api/auth', name: 'api_auth')]
+    #[Route('/api/auth', name: 'api_auth', methods: ['POST'])]
     public function login(#[CurrentUser] ?object $user): JsonResponse
     {
         if (null === $user) {
