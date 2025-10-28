@@ -16,6 +16,20 @@ class AdviceRepository extends ServiceEntityRepository
         parent::__construct($registry, Advice::class);
     }
 
+    /**
+     * @param $month
+     * @return array
+     */
+    public function findAdvicesByMonth($month): array
+    {
+        return $this->createQueryBuilder('a')
+            ->where('a.month = :month')
+            ->setParameter('month', $month)
+            ->orderBy('a.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return Advice[] Returns an array of Advice objects
     //     */
