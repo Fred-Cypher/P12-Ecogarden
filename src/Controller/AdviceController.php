@@ -66,8 +66,10 @@ final class AdviceController extends AbstractController
 
         $advices = $adviceRepository->findAdvicesByMonth($monthEnum);
 
+        $frenchMonth = $monthEnum->label();
+
         if (!$advices) {
-            return $this->jsonError("Aucun conseil trouvé pour ce mois", Response::HTTP_NOT_FOUND);
+            return $this->jsonError("Aucun conseil trouvé pour $frenchMonth", Response::HTTP_NOT_FOUND);
         }
 
         $monthAdvices = $serializer->serialize($advices, 'json', ['groups' => ['advice:read']]);
