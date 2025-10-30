@@ -182,7 +182,7 @@ final class AdviceController extends AbstractController
         $em->remove($advice);
         $em->flush();
 
-        return new JsonResponse(['message' => 'Conseil supprimé'], Response::HTTP_NO_CONTENT);
+        return new JsonResponse(['message' => 'Conseil supprimé'], Response::HTTP_OK);
     }
 
     private function jsonError(string $message, int $status = Response::HTTP_BAD_REQUEST): JsonResponse
