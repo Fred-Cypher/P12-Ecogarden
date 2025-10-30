@@ -17,10 +17,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['advice:read'])]
+    #[Groups(['advice:read', 'user:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Groups(['user:read', 'user:write'])]
     private ?string $email = null;
 
     /**
@@ -33,26 +34,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string The hashed password
      */
     #[ORM\Column]
+    #[Groups(['user:write'])]
     private ?string $password = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['advice:read'])]
+    #[Groups(['advice:read', 'user:read', 'user:write'])]
     private ?string $login = null;
 
     #[ORM\Column(length: 100)]
-    #[Groups(['advice:read'])]
+    #[Groups(['advice:read', 'user:read', 'user:write'])]
     private ?string $city = null;
 
     #[ORM\Column(length: 12)]
-    #[Groups(['advice:read'])]
+    #[Groups(['advice:read', 'user:read', 'user:write'])]
     private ?string $zipCode = null;
 
     #[ORM\Column]
-    #[Groups(['advice:read'])]
+    #[Groups(['advice:read', 'user:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
-    #[Groups(['advice:read'])]
+    #[Groups(['advice:read', 'user:read'])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     /**
