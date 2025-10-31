@@ -121,6 +121,7 @@ final class UserController extends AbstractController
      * Retrieving user by its id (used for testing)
      * @throws ExceptionInterface
      */
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/api/user/{id}', name: 'app_api_get_user', methods: ['GET'])]
     public function getUserById(User $user, SerializerInterface $serializer): JsonResponse
     {
