@@ -17,6 +17,7 @@ class WeatherService
 
     private function getCoordinates(string $cityName): ?array
     {
+//        dd($this->apiKey);
         $city = urlencode($cityName);
 
         $url = "https://api.openweathermap.org/geo/1.0/direct?q={$city}&limit=1&appid={$this->apiKey}";
@@ -42,14 +43,16 @@ class WeatherService
     private function getCurrentWeather(float $latitude, float $longitude): ?array
     {
         $url = sprintf(
-            'https://api.openweathermap.org/data/2.5/onecall?lat=%f&lon=%f&exclude=minutely,hourly,daily,alerts&units=metric&lang=fr&appid=%s',
+            'https://api.openweathermap.org/data/2.5/weather?lat=%f&lon=%f&units=metric&lang=fr&appid=%s',
             $latitude,
             $longitude,
-            $this->apiKey);
+            $this->apiKey
+        );
+
 
         try{
             $response = $this->httpClient->request('GET', $url);
-            if ($response->getInfo('http_code') == 200) {
+            if ($response->getStatusCode() === 200) {
                 return $response->toArray();
             }
         } catch (\Exception $e){
