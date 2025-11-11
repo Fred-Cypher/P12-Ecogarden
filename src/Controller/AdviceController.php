@@ -52,52 +52,36 @@ final class AdviceController extends AbstractController
      * Retrieving advice by month
      * @throws ExceptionInterface
      */
-    #[Route('/api/advice/{month}', name: 'app_api_advice_month', methods: ['GET'])]
+    #[Route('/api/advice/{month?}', name: 'app_api_advice_month', methods: ['GET'])]
     public function getAdvicesByMonth(
         AdviceRepository $adviceRepository,
         SerializerInterface $serializer,
-        int $month
+        ?int $month = null,
     ): JsonResponse {
+        if ($month === null) {
+            $monthNumber = (int)(new \DateTimeImmutable('now'))->format('m');
+        } else {
+            $monthNumber = $month;
+        }
+
         try {
-            $monthEnum = Month::from($month);
+            $monthEnum = Month::from($monthNumber);
         } catch (\ValueError) {
             return $this->jsonError('Mois invalide. Veuillez utiliser un mois existant.', Response::HTTP_BAD_REQUEST);
         }
 
         $advices = $adviceRepository->findAdvicesByMonth($monthEnum);
 
-        $frenchMonth = $monthEnum->label();
-
         if (!$advices) {
-            return $this->jsonError("Aucun conseil trouvé pour $frenchMonth", Response::HTTP_NOT_FOUND);
+            $frenchMonth = $monthEnum->label();
+            $message = $month === null ? 'Aucun conseil trouvé pour le mois en cours' : "Aucun conseil trouvé pour $frenchMonth";
+
+            return $this->jsonError($message, Response::HTTP_NOT_FOUND);
         }
 
-        $monthAdvices = $serializer->serialize($advices, 'json', ['groups' => ['advice:read']]);
+        $advicesJson = $serializer->serialize($advices, 'json', ['groups' => ['advice:read']]);
 
-        return new JsonResponse($monthAdvices, Response::HTTP_OK, [], true);
-    }
-
-    /**
-     * Retrieve advices for the current month
-     */
-    #[Route('/api/advice', name: 'app_api_advice_currentmonth', methods: ['GET'])]
-    public function getAdvicesCurrentMonth(
-        AdviceRepository $adviceRepository,
-        SerializerInterface $serializer
-    ): JsonResponse {
-        $now = new \DateTimeImmutable('now');
-        $currentMonthNumber = (int)$now->format('n');
-
-        $currentMonth = Month::from($currentMonthNumber);
-
-        $advices = $adviceRepository->findAdvicesByMonth($currentMonth);
-
-        if (!$advices) {
-            return $this->jsonError('Aucun conseil trouvé pour le mois en cours', Response::HTTP_NOT_FOUND);
-        }
-        $currentMonthAdvices = $serializer->serialize($advices, 'json', ['groups' => ['advice:read']]);
-
-        return new JsonResponse($currentMonthAdvices, Response::HTTP_OK, [], true);
+        return new JsonResponse($advicesJson, Response::HTTP_OK, [], true);
     }
 
     /**
