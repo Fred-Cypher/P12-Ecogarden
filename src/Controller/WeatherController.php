@@ -26,11 +26,12 @@ class WeatherController extends AbstractController
             try{
                 $weather = $weatherService->getWeatherForCity($city);
 
+                $name = $weather['name'];
                 $description = $weather['weather'][0]['description'];
                 $temperature = $weather['main']['temp'];
                 $humidity = $weather['main']['humidity'];
 
-                $meteo = ['Qualité du ciel' => $description, 'Température' => $temperature, 'Taux d\'humidité' => $humidity];
+                $meteo = ['Position de la sonde météo' => $name, 'Qualité du ciel' => $description, 'Température' => $temperature, 'Taux d\'humidité' => $humidity];
 
                 return new JsonResponse($meteo, Response::HTTP_OK);
             } catch (\Exception $e) {
@@ -40,11 +41,12 @@ class WeatherController extends AbstractController
             $city = $currentUser->getCity();
             $weather = $weatherService->getWeatherForCity($city);
 
+            $name = $weather['name'];
             $description = $weather['weather'][0]['description'];
             $temperature = $weather['main']['temp'];
             $humidity = $weather['main']['humidity'];
 
-            $meteo = ['Qualité du ciel' => $description, 'Température' => $temperature, 'Taux d\'humidité' => $humidity];
+            $meteo = ['Lieu de la sonde météo' => $name, 'Qualité du ciel' => $description, 'Température' => $temperature, 'Taux d\'humidité' => $humidity];
 
             return new JsonResponse($meteo, Response::HTTP_OK);
         }
