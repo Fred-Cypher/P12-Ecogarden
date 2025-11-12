@@ -17,7 +17,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['advice:read', 'user:read'])]
+    #[Groups(['user:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
@@ -50,11 +50,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $zipCode = null;
 
     #[ORM\Column]
-    #[Groups(['advice:read', 'user:read'])]
+    #[Groups(['user:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
-    #[Groups(['advice:read', 'user:read'])]
+    #[Groups(['user:read'])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     /**
