@@ -3,6 +3,7 @@
 namespace App\EventListener;
 
 use Lexik\Bundle\JWTAuthenticationBundle\Event\AuthenticationFailureEvent;
+use Lexik\Bundle\JWTAuthenticationBundle\Event\JWTExpiredEvent;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\JWTInvalidEvent;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\JWTNotFoundEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,7 +24,17 @@ class JWTExceptionListener
     {
         $data = [
             'status' => 401,
-            'message' => 'Jeton JWT invalide ou expiré',
+            'message' => 'Jeton JWT invalide',
+        ];
+
+        $event->setResponse(new JsonResponse($data, 401));
+    }
+
+    public function onJWTExpired (JWTExpiredEvent $event): void
+    {
+        $data = [
+            'status' => 401,
+            'message' => 'Le jeton JWT a expiré',
         ];
 
         $event->setResponse(new JsonResponse($data, 401));
