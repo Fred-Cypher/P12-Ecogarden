@@ -22,7 +22,6 @@ final class UserController extends AbstractController
      * Create a new user
      * @throws ExceptionInterface
      */
-    #[IsGranted("ROLE_ADMIN")]
     #[Route('/api/user', name: 'app_api_create_user', methods: ['POST'])]
     public function createUser(
         Request $request,
