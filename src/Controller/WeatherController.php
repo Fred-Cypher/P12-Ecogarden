@@ -35,6 +35,12 @@ class WeatherController extends AbstractController
         return new JsonResponse($response->getContent(), $response->getStatusCode(), [], true);
     }
 
+    /**
+     * @param WeatherService $weatherService
+     * @param string|null $city
+     * @param UserInterface|null $currentUser
+     * @return JsonResponse
+     */
     #[Route('/api/getweather/{city?}', name: 'app_api_getweather', methods: ['GET'])]
     public function getWeather(WeatherService $weatherService, ?string $city, #[CurrentUser] ?UserInterface $currentUser): JsonResponse
     {
@@ -64,6 +70,33 @@ class WeatherController extends AbstractController
             $meteo = ['Qualité du ciel' => $description, 'Température' => $temperature, 'Taux d\'humidité' => $humidity];
 
             return new JsonResponse($meteo, Response::HTTP_OK);
+        }
+    }
+
+    /**
+     * Only used for tests to see all information
+     * @param WeatherService $weatherService
+     * @param string|null $city
+     * @param UserInterface|null $currentUser
+     * @return JsonResponse
+     */
+    #[Route('/api/getweatherall/{city?}', name: 'app_api_getweather_all', methods: ['GET'])]
+    public function getWeatherAll(WeatherService $weatherService, ?string $city, #[CurrentUser] ?UserInterface $currentUser): JsonResponse
+    {
+        if ($city)
+        {
+            try{
+                $weather = $weatherService->getWeatherForCity($city);
+
+                return new JsonResponse($weather, Response::HTTP_OK);
+            } catch (\Exception $e) {
+                return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_NOT_FOUND);
+            }
+        } else {
+            $city = $currentUser->getCity();
+            $weather = $weatherService->getWeatherForCity($city);
+
+            return new JsonResponse($weather, Response::HTTP_OK);
         }
     }
 }
