@@ -2,22 +2,25 @@
 
 namespace App\Service;
 
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class WeatherService
 {
     private HttpClientInterface $httpClient;
     private string $apiKey;
+    private TagAwareCacheInterface $cache;
 
-    public function __construct(HttpClientInterface $httpClient, string $weatherApiKey)
+    public function __construct(HttpClientInterface $httpClient, string $weatherApiKey, TagAwareCacheInterface $cache)
     {
         $this->httpClient = $httpClient;
         $this->apiKey = $weatherApiKey;
+        $this->cache = $cache;
     }
 
     private function getCoordinates(string $cityName): ?array
     {
-//        dd($this->apiKey);
         $city = urlencode($cityName);
 
         $url = "https://api.openweathermap.org/geo/1.0/direct?q={$city}&limit=1&appid={$this->apiKey}";
@@ -64,13 +67,26 @@ class WeatherService
 
     public function getWeatherForCity(string $cityName): ?array
     {
-        $coordinates = $this->getCoordinates($cityName);
+        $cacheKey = 'weather_' . strtolower($cityName);
 
-        if (!$coordinates) {
-            return null;
-        }
+        return $this->cache->get($cacheKey, function (ItemInterface $item) use ($cityName) {
+            $item->expiresAfter(3600);
+            $item->tag(['weather']);
+            echo ("Mise_en_cache_des_éléments_de_météo_pour_la_ville_:  $cityName");
 
-        return $this->getCurrentWeather($coordinates['latitude'], $coordinates['longitude']);
+            $coordinates = $this->getCoordinates($cityName);
+
+            if (!$coordinates) {
+                throw new \Exception("Impossible de trouver les coordonnées pour la ville " . $cityName);
+            }
+
+            return $this->getCurrentWeather($coordinates['latitude'], $coordinates['longitude']);
+        });
+    }
+
+    public function clearWeatherCache(): void
+    {
+        $this->cache->invalidateTags(['weather']);
     }
 
 }

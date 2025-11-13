@@ -21,34 +21,22 @@ class WeatherController extends AbstractController
     #[Route('/api/getweather/{city?}', name: 'app_api_getweather', methods: ['GET'])]
     public function getWeather(WeatherService $weatherService, ?string $city, #[CurrentUser] ?UserInterface $currentUser): JsonResponse
     {
-        if ($city)
-        {
-            try{
-                $weather = $weatherService->getWeatherForCity($city);
+        $city = $city ?? $currentUser->getCity();
 
-                $name = $weather['name'];
-                $description = $weather['weather'][0]['description'];
-                $temperature = $weather['main']['temp'];
-                $humidity = $weather['main']['humidity'];
-
-                $meteo = ['Position de la sonde météo' => $name, 'Qualité du ciel' => $description, 'Température' => $temperature, 'Taux d\'humidité' => $humidity];
-
-                return new JsonResponse($meteo, Response::HTTP_OK);
-            } catch (\Exception $e) {
-                return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_NOT_FOUND);
-            }
-        } else {
-            $city = $currentUser->getCity();
+        try {
             $weather = $weatherService->getWeatherForCity($city);
 
-            $name = $weather['name'];
-            $description = $weather['weather'][0]['description'];
-            $temperature = $weather['main']['temp'];
-            $humidity = $weather['main']['humidity'];
-
-            $meteo = ['Lieu de la sonde météo' => $name, 'Qualité du ciel' => $description, 'Température' => $temperature, 'Taux d\'humidité' => $humidity];
+            $meteo = [
+                'Lieu de la sonde météo' => $weather['name'],
+                'Qualité du ciel' => $weather['weather'][0]['description'],
+                'Température' => $weather['main']['temp'],
+                'Taux d\'humidité' => $weather['main']['humidity'],
+            ];
 
             return new JsonResponse($meteo, Response::HTTP_OK);
+
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_NOT_FOUND);
         }
     }
 
@@ -78,4 +66,16 @@ class WeatherController extends AbstractController
             return new JsonResponse($weather, Response::HTTP_OK);
         }
     }
+
+    /**
+     * @param WeatherService $weatherService
+     * @return JsonResponse
+     */
+    #[Route('/api/clearweathercache', name: 'app_api_clear_weather_cache', methods: ['DELETE'])]
+    public function clearWeatherCache(WeatherService $weatherService): JsonResponse
+    {
+        $weatherService->clearWeatherCache();
+        return new JsonResponse(['message' => 'Cache météo vidé'], Response::HTTP_OK);
+    }
+
 }
