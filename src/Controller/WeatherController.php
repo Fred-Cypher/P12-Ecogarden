@@ -26,11 +26,14 @@ class WeatherController extends AbstractController
         try {
             $weather = $weatherService->getWeatherForCity($city);
 
+            $dateTime = (new \DateTime())->setTimestamp($weather['dt'])->format('d/m/Y H:i:s');
+
             $meteo = [
                 'Lieu de la sonde météo' => $weather['name'],
                 'Qualité du ciel' => $weather['weather'][0]['description'],
                 'Température' => $weather['main']['temp'],
                 'Taux d\'humidité' => $weather['main']['humidity'],
+                'Date et heure' => $dateTime,
             ];
 
             return new JsonResponse($meteo, Response::HTTP_OK);
@@ -50,20 +53,16 @@ class WeatherController extends AbstractController
     #[Route('/api/getweatherall/{city?}', name: 'app_api_getweather_all', methods: ['GET'])]
     public function getWeatherAll(WeatherService $weatherService, ?string $city, #[CurrentUser] ?UserInterface $currentUser): JsonResponse
     {
-        if ($city)
-        {
-            try{
-                $weather = $weatherService->getWeatherForCity($city);
 
-                return new JsonResponse($weather, Response::HTTP_OK);
-            } catch (\Exception $e) {
-                return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_NOT_FOUND);
-            }
-        } else {
-            $city = $currentUser->getCity();
+        $city = $city ?? $currentUser->getCity();
+
+        try {
             $weather = $weatherService->getWeatherForCity($city);
 
             return new JsonResponse($weather, Response::HTTP_OK);
+
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_NOT_FOUND);
         }
     }
 
