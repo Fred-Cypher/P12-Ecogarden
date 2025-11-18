@@ -24,7 +24,10 @@ class WeatherController extends AbstractController
         $city = $city ?? $currentUser->getCity();
 
         try {
-            $weather = $weatherService->getWeatherForCity($city);
+            $weatherData = $weatherService->getWeatherForCity($city);
+
+            $weather = $weatherData['weather'];
+            $fetchedAt = $weatherData['fetched_at'];
 
             $dateTime = (new \DateTime())->setTimestamp($weather['dt'])->format('d/m/Y H:i:s');
 
@@ -34,6 +37,7 @@ class WeatherController extends AbstractController
                 'Température' => $weather['main']['temp'],
                 'Taux d\'humidité' => $weather['main']['humidity'],
                 'Date et heure' => $dateTime,
+                'Heure de récupération (cache/local)' => $fetchedAt,
             ];
 
             return new JsonResponse($meteo, Response::HTTP_OK);

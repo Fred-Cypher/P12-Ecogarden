@@ -12,18 +12,21 @@ class WeatherService
     private string $apiKey;
     private TagAwareCacheInterface $cache;
 
+    private string $openWeatherUrl;
+
     public function __construct(HttpClientInterface $httpClient, string $weatherApiKey, TagAwareCacheInterface $cache)
     {
         $this->httpClient = $httpClient;
         $this->apiKey = $weatherApiKey;
         $this->cache = $cache;
+        $this->openWeatherUrl = 'https://api.openweathermap.org';
     }
 
     private function getCoordinates(string $cityName): ?array
     {
         $city = urlencode($cityName);
 
-        $url = "https://api.openweathermap.org/geo/1.0/direct?q={$city}&limit=1&appid={$this->apiKey}";
+        $url = "{$this->openWeatherUrl}/geo/1.0/direct?q={$city}&limit=1&appid={$this->apiKey}";
 
         try{
             $response = $this->httpClient->request('GET', $url);
@@ -36,7 +39,7 @@ class WeatherService
                 ];
             }
         } catch (\Exception $e){
-            return $response->getInfo('Pas de coordonnées pour cette ville, veuillez changer de localité');
+            return null;
         }
 
         return null;
@@ -46,7 +49,7 @@ class WeatherService
     private function getCurrentWeather(float $latitude, float $longitude): ?array
     {
         $url = sprintf(
-            'https://api.openweathermap.org/data/2.5/weather?lat=%f&lon=%f&units=metric&lang=fr&appid=%s',
+            "{$this->openWeatherUrl}/data/2.5/weather?lat=%f&lon=%f&units=metric&lang=fr&appid=%s",
             $latitude,
             $longitude,
             $this->apiKey
@@ -80,7 +83,10 @@ class WeatherService
                 throw new \Exception("Impossible de trouver les coordonnées pour la ville " . $cityName);
             }
 
-            return $this->getCurrentWeather($coordinates['latitude'], $coordinates['longitude']);
+            return [
+                'weather' => $this->getCurrentWeather($coordinates['latitude'], $coordinates['longitude']),
+                'fetched_at' => (new \DateTime())->format('d/m/Y H:i:s'),
+            ];
         });
     }
 
