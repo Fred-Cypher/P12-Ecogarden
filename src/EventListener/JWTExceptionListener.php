@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class JWTExceptionListener
 {
-    public function onJWTNotFound (JWTNotFoundEvent $event): void
+    public function onJWTNotFound(JWTNotFoundEvent $event): void
     {
         $data = [
             'status' => 401,
@@ -20,7 +20,7 @@ class JWTExceptionListener
         $event->setResponse(new JsonResponse($data, 401));
     }
 
-    public function onJWTInvalide (JWTInvalidEvent $event): void
+    public function onJWTInvalide(JWTInvalidEvent $event): void
     {
         $data = [
             'status' => 401,
@@ -30,7 +30,7 @@ class JWTExceptionListener
         $event->setResponse(new JsonResponse($data, 401));
     }
 
-    public function onJWTExpired (JWTExpiredEvent $event): void
+    public function onJWTExpired(JWTExpiredEvent $event): void
     {
         $data = [
             'status' => 401,

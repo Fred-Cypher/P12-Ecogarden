@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Service\WeatherService;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,10 +18,14 @@ class WeatherController extends AbstractController
      * @param string|null $city
      * @param UserInterface|null $currentUser
      * @return JsonResponse
+     * @throws InvalidArgumentException
      */
     #[Route('/api/getweather/{city?}', name: 'app_api_getweather', methods: ['GET'])]
-    public function getWeather(WeatherService $weatherService, ?string $city, #[CurrentUser] ?UserInterface $currentUser): JsonResponse
-    {
+    public function getWeather(
+        WeatherService $weatherService,
+        ?string $city,
+        #[CurrentUser] ?UserInterface $currentUser
+    ): JsonResponse {
         $city = $city ?? $currentUser->getCity();
 
         try {
@@ -41,7 +46,6 @@ class WeatherController extends AbstractController
             ];
 
             return new JsonResponse($meteo, Response::HTTP_OK);
-
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_NOT_FOUND);
         }
@@ -53,18 +57,20 @@ class WeatherController extends AbstractController
      * @param string|null $city
      * @param UserInterface|null $currentUser
      * @return JsonResponse
+     * @throws InvalidArgumentException
      */
     #[Route('/api/getweatherall/{city?}', name: 'app_api_getweather_all', methods: ['GET'])]
-    public function getWeatherAll(WeatherService $weatherService, ?string $city, #[CurrentUser] ?UserInterface $currentUser): JsonResponse
-    {
-
+    public function getWeatherAll(
+        WeatherService $weatherService,
+        ?string $city,
+        #[CurrentUser] ?UserInterface $currentUser
+    ): JsonResponse {
         $city = $city ?? $currentUser->getCity();
 
         try {
             $weather = $weatherService->getWeatherForCity($city);
 
             return new JsonResponse($weather, Response::HTTP_OK);
-
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_NOT_FOUND);
         }
@@ -73,6 +79,7 @@ class WeatherController extends AbstractController
     /**
      * @param WeatherService $weatherService
      * @return JsonResponse
+     * @throws InvalidArgumentException
      */
     #[Route('/api/clearweathercache', name: 'app_api_clear_weather_cache', methods: ['DELETE'])]
     public function clearWeatherCache(WeatherService $weatherService): JsonResponse

@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -22,6 +23,11 @@ class WeatherService
         $this->openWeatherUrl = 'https://api.openweathermap.org';
     }
 
+    /**
+     * Retrieve geographical coordinates for a city
+     * @param string $cityName
+     * @return array|null
+     */
     private function getCoordinates(string $cityName): ?array
     {
         $city = urlencode($cityName);
@@ -46,6 +52,9 @@ class WeatherService
 
     }
 
+    /*
+     * Retrieve weather data using geographical coordinates
+     */
     private function getCurrentWeather(float $latitude, float $longitude): ?array
     {
         $url = sprintf(
@@ -68,6 +77,10 @@ class WeatherService
         return null;
     }
 
+    /**
+     * Retrieve weather data using city name
+     * @throws InvalidArgumentException
+     */
     public function getWeatherForCity(string $cityName): ?array
     {
         $cacheKey = 'weather_' . strtolower($cityName);
@@ -90,6 +103,10 @@ class WeatherService
         });
     }
 
+    /**
+     * Clear weather cache
+     * @throws InvalidArgumentException
+     */
     public function clearWeatherCache(): void
     {
         $this->cache->invalidateTags(['weather']);

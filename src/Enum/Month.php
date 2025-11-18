@@ -19,7 +19,7 @@ enum Month: int
 
     public function label(): string
     {
-        return match($this) {
+        return match ($this) {
             self::JANUARY => 'Janvier',
             self::FEBRUARY => 'Février',
             self::MARCH => 'Mars',

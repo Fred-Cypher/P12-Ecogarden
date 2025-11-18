@@ -48,6 +48,7 @@ class ExceptionSubscriber implements EventSubscriberInterface
 
         $event->setResponse($response);
     }
+
     public static function getSubscribedEvents(): array
     {
         return [
