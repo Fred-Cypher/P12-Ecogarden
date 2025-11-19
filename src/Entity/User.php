@@ -42,11 +42,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $login = null;
 
     #[ORM\Column(length: 100)]
-    #[Groups(['advice:read', 'user:read', 'user:write'])]
+    #[Groups(['user:read', 'user:write'])]
     private ?string $city = null;
 
     #[ORM\Column(length: 12)]
-    #[Groups(['advice:read', 'user:read', 'user:write'])]
+    #[Groups(['user:read', 'user:write'])]
     private ?string $zipCode = null;
 
     #[ORM\Column]
